@@ -124,7 +124,7 @@ for each in rslt:
     path = parent_path + dir_name
     mkdir(path)
     fn = path + '/info.json' 
-    nvft.write_to_file(fn)
+    nvft.write_to_file(fn=fn,mode='b+')
     next_unhandled[path] = each['url']
 
 unhandled = next_unhandled
@@ -140,10 +140,9 @@ while(unhandled.__len__()>0):
             path = parent_path + dir_name
             mkdir(path)
             fn = path + '/info.json' 
-            nvft.write_to_file(path)
+            nvft.write_to_file(fn = fn,mode='b+')
             if(child['AphiaID'] == 0):
                 pass
             else:
                 next_unhandled[path] = child['url']
-
 #"AphiaID": 0
