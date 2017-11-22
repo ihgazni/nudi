@@ -63,12 +63,10 @@ def mkdir(path,force=False):
 
 
 
-
 def marinespecies_init(base_url='http://www.marinespecies.org/'):
     info_container = nvsoli.new_info_container()
     info_container['base_url'] = base_url
-
-info_container['method'] = 'GET'
+    info_container['method'] = 'GET'
     req_head_str = '''Accept: application/json\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.94 Safari/537.36\r\nAccept-Encoding: gzip,deflate,sdch\r\nAccept-Language: en;q=1.0, zh-CN;q=0.8'''
     info_container['req_head'] = nvhead.build_headers_dict_from_str(req_head_str,'\r\n')
     info_container['req_head']['Connection'] = 'close'
@@ -119,3 +117,33 @@ info_container,records_container = marinespecies_init()
 info_container,records_container,rslt = AphiaChildrenByAphiaID(info_container,records_container,marine_only=True)
 
 
+next_unhandled = {}
+for each in rslt:
+    parent_path = '../Biota/'
+    dir_name = each['scientificname']
+    path = parent_path + dir_name
+    mkdir(path)
+    fn = path + '/info.json' 
+    nvft.write_to_file(fn)
+    next_unhandled[path] = each['url']
+
+unhandled = next_unhandled
+next_unhandled = {}
+
+while(unhandled.__len__()>0):
+    for path in unhandled:
+        parent_path = path
+        info_container['url'] = unhandled[path]
+        info_container,records_container,children = AphiaChildrenByAphiaID(info_container,records_container,marine_only=True)
+        for child in children:
+            dir_name = child['scientificname']
+            path = parent_path + dir_name
+            mkdir(path)
+            fn = path + '/info.json' 
+            nvft.write_to_file(path)
+            if(child['AphiaID'] == 0):
+                pass
+            else:
+                next_unhandled[path] = child['url']
+
+#"AphiaID": 0
